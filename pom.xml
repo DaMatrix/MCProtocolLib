@@ -5,7 +5,7 @@
 
     <groupId>com.github.steveice10</groupId>
     <artifactId>mcprotocollib</artifactId>
-    <version>1.12.2-toobeetooteebot-SNAPSHOT</version>
+    <version>1.12.2-v2cc-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>MCProtocolLib</name>
@@ -53,11 +53,6 @@
     </repositories>
 
     <distributionManagement>
-        <repository>
-            <id>daporkchop-release</id>
-            <name>daporkchop-release</name>
-            <url>https://maven.daporkchop.net/release/</url>
-        </repository>
         <snapshotRepository>
             <id>daporkchop-snapshot</id>
             <name>daporkchop-snapshot</name>
@@ -75,7 +70,7 @@
         <dependency>
             <groupId>com.github.steveice10</groupId>
             <artifactId>packetlib</artifactId>
-            <version>1.3</version>
+            <version>1.3-v2cc-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
