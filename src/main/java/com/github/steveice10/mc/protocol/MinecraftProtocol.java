@@ -152,7 +152,7 @@ public class MinecraftProtocol extends PacketProtocol {
     private String accessToken = "";
 
     @SuppressWarnings("unused")
-    private MinecraftProtocol() {
+    protected MinecraftProtocol() {
     }
 
     public MinecraftProtocol(SubProtocol subProtocol) {
