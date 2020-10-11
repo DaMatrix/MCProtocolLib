@@ -22,7 +22,7 @@ pipeline {
 
         stage ("Deploy") {
             steps {
-                sh "mvn source:jar deploy -DskipTests"
+                sh "mvn deploy -DskipTests"
             }
         }
     }

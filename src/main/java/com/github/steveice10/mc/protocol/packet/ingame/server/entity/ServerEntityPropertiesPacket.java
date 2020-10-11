@@ -48,7 +48,11 @@ public class ServerEntityPropertiesPacket extends MinecraftPacket {
                 modifiers.add(new AttributeModifier(in.readUUID(), in.readDouble(), MagicValues.key(ModifierOperation.class, in.readByte())));
             }
 
-            this.attributes.add(new Attribute(MagicValues.key(AttributeType.class, key), value, modifiers));
+            try {
+                this.attributes.add(new Attribute(MagicValues.key(AttributeType.class, key), value, modifiers));
+            } catch (IllegalArgumentException e)    {
+                //attribute is not a known key, skip it
+            }
         }
     }
 
