@@ -30,10 +30,14 @@ public class BlockStorage {
     }
 
     public BlockStorage(NetInput in) throws IOException {
+        this.read(in);
+    }
+
+    public void read(NetInput in) throws IOException {
         this.bitsPerEntry = in.readUnsignedByte();
 
-        this.states = new ArrayList<BlockState>();
         int stateCount = in.readVarInt();
+        this.states = new ArrayList<>(stateCount);
         for(int i = 0; i < stateCount; i++) {
             this.states.add(NetUtil.readBlockState(in));
         }
