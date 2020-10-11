@@ -1,6 +1,6 @@
 package com.github.steveice10.mc.protocol.packet.ingame.server.world;
 
-import com.github.steveice10.mc.protocol.data.game.chunk.Column;
+import com.github.steveice10.mc.protocol.data.game.chunk.Chunk;
 import com.github.steveice10.mc.protocol.packet.MinecraftPacket;
 import com.github.steveice10.mc.protocol.util.NetUtil;
 import com.github.steveice10.opennbt.tag.builtin.CompoundTag;
@@ -12,18 +12,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class ServerChunkDataPacket extends MinecraftPacket {
-    private Column column;
+    private Chunk chunk;
 
     @SuppressWarnings("unused")
     private ServerChunkDataPacket() {
     }
 
-    public ServerChunkDataPacket(Column column) {
-        this.column = column;
+    public ServerChunkDataPacket(Chunk chunk) {
+        this.chunk = chunk;
     }
 
-    public Column getColumn() {
-        return this.column;
+    public Chunk getColumn() {
+        return this.chunk;
     }
 
     @Override
@@ -38,23 +38,23 @@ public class ServerChunkDataPacket extends MinecraftPacket {
             tileEntities[i] = NetUtil.readNBT(in);
         }
 
-        this.column = NetUtil.readColumn(data, x, z, fullChunk, false, chunkMask, tileEntities);
+        this.chunk = NetUtil.readColumn(data, x, z, fullChunk, false, chunkMask, tileEntities);
     }
 
     @Override
     public void write(NetOutput out) throws IOException {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         NetOutput netOut = new StreamNetOutput(byteOut);
-        int mask = NetUtil.writeColumn(netOut, this.column, this.column.hasBiomeData(), this.column.hasSkylight());
+        int mask = NetUtil.writeColumn(netOut, this.chunk, this.chunk.hasBiomeData(), this.chunk.hasSkylight());
 
-        out.writeInt(this.column.getX());
-        out.writeInt(this.column.getZ());
-        out.writeBoolean(this.column.hasBiomeData());
+        out.writeInt(this.chunk.getX());
+        out.writeInt(this.chunk.getZ());
+        out.writeBoolean(this.chunk.hasBiomeData());
         out.writeVarInt(mask);
         out.writeVarInt(byteOut.size());
         out.writeBytes(byteOut.toByteArray(), byteOut.size());
-        out.writeVarInt(this.column.getTileEntities().length);
-        for(CompoundTag tag : this.column.getTileEntities()) {
+        out.writeVarInt(this.chunk.getTileEntities().length);
+        for(CompoundTag tag : this.chunk.getTileEntities()) {
             NetUtil.writeNBT(out, tag);
         }
     }

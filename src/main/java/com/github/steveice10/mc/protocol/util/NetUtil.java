@@ -2,8 +2,8 @@ package com.github.steveice10.mc.protocol.util;
 
 import com.github.steveice10.mc.protocol.data.MagicValues;
 import com.github.steveice10.mc.protocol.data.game.chunk.BlockStorage;
+import com.github.steveice10.mc.protocol.data.game.chunk.Section;
 import com.github.steveice10.mc.protocol.data.game.chunk.Chunk;
-import com.github.steveice10.mc.protocol.data.game.chunk.Column;
 import com.github.steveice10.mc.protocol.data.game.chunk.NibbleArray3d;
 import com.github.steveice10.mc.protocol.data.game.entity.metadata.EntityMetadata;
 import com.github.steveice10.mc.protocol.data.game.entity.metadata.ItemStack;
@@ -238,18 +238,18 @@ public class NetUtil {
         out.writeByte(255);
     }
 
-    public static Column readColumn(byte data[], int x, int z, boolean fullChunk, boolean hasSkylight, int mask, CompoundTag[] tileEntities) throws IOException {
+    public static Chunk readColumn(byte data[], int x, int z, boolean fullChunk, boolean hasSkylight, int mask, CompoundTag[] tileEntities) throws IOException {
         NetInput in = new StreamNetInput(new ByteArrayInputStream(data));
         Throwable ex = null;
-        Column column = null;
+        Chunk chunk = null;
         try {
-            Chunk[] chunks = new Chunk[16];
-            for(int index = 0; index < chunks.length; index++) {
+            Section[] sections = new Section[16];
+            for(int index = 0; index < sections.length; index++) {
                 if((mask & (1 << index)) != 0) {
                     BlockStorage blocks = new BlockStorage(in);
                     NibbleArray3d blocklight = new NibbleArray3d(in, 2048);
                     NibbleArray3d skylight = hasSkylight ? new NibbleArray3d(in, 2048) : null;
-                    chunks[index] = new Chunk(blocks, blocklight, skylight);
+                    sections[index] = new Section(blocks, blocklight, skylight);
                 }
             }
 
@@ -258,7 +258,7 @@ public class NetUtil {
                 biomeData = in.readBytes(256);
             }
 
-            column = new Column(x, z, chunks, biomeData, tileEntities);
+            chunk = new Chunk(x, z, sections, biomeData, tileEntities);
         } catch(Throwable e) {
             ex = e;
         }
@@ -270,26 +270,26 @@ public class NetUtil {
             throw new IOException("Failed to read chunk data.", ex);
         }
 
-        return column;
+        return chunk;
     }
 
-    public static int writeColumn(NetOutput out, Column column, boolean fullChunk, boolean hasSkylight) throws IOException {
+    public static int writeColumn(NetOutput out, Chunk chunk, boolean fullChunk, boolean hasSkylight) throws IOException {
         int mask = 0;
-        Chunk chunks[] = column.getChunks();
-        for(int index = 0; index < chunks.length; index++) {
-            Chunk chunk = chunks[index];
-            if(chunk != null && (!fullChunk || !chunk.isEmpty())) {
+        Section sections[] = chunk.getChunks();
+        for(int index = 0; index < sections.length; index++) {
+            Section section = sections[index];
+            if(section != null && (!fullChunk || !section.isEmpty())) {
                 mask |= 1 << index;
-                chunk.getBlocks().write(out);
-                chunk.getBlockLight().write(out);
+                section.getBlocks().write(out);
+                section.getBlockLight().write(out);
                 if(hasSkylight) {
-                    chunk.getSkyLight().write(out);
+                    section.getSkyLight().write(out);
                 }
             }
         }
 
         if(fullChunk) {
-            out.writeBytes(column.getBiomeData());
+            out.writeBytes(chunk.getBiomeData());
         }
 
         return mask;

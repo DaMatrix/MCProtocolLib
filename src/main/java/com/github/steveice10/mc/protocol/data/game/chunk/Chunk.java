@@ -1,38 +1,81 @@
 package com.github.steveice10.mc.protocol.data.game.chunk;
 
 import com.github.steveice10.mc.protocol.util.ObjectUtil;
+import com.github.steveice10.opennbt.tag.builtin.CompoundTag;
 
-import java.util.Objects;
+import java.util.Arrays;
 
 public class Chunk {
-    private BlockStorage blocks;
-    private NibbleArray3d blocklight;
-    private NibbleArray3d skylight;
+    private int x;
+    private int z;
+    private Section sections[];
+    private byte biomeData[];
+    private CompoundTag tileEntities[];
 
-    public Chunk(boolean skylight) {
-        this(new BlockStorage(), new NibbleArray3d(4096), skylight ? new NibbleArray3d(4096) : null);
+    private boolean skylight;
+
+    public Chunk(int x, int z, Section sections[], CompoundTag[] tileEntities) {
+        this(x, z, sections, null, tileEntities);
     }
 
-    public Chunk(BlockStorage blocks, NibbleArray3d blocklight, NibbleArray3d skylight) {
-        this.blocks = blocks;
-        this.blocklight = blocklight;
-        this.skylight = skylight;
+    public Chunk(int x, int z, Section sections[], byte biomeData[], CompoundTag[] tileEntities) {
+        if(sections.length != 16) {
+            throw new IllegalArgumentException("Chunk array length must be 16.");
+        }
+
+        if(biomeData != null && biomeData.length != 256) {
+            throw new IllegalArgumentException("Biome data array length must be 256.");
+        }
+
+        this.skylight = false;
+        boolean noSkylight = false;
+        for(Section section : sections) {
+            if(section != null) {
+                if(section.getSkyLight() == null) {
+                    noSkylight = true;
+                } else {
+                    this.skylight = true;
+                }
+            }
+        }
+
+        if(noSkylight && this.skylight) {
+            throw new IllegalArgumentException("Either all chunks must have skylight values or none must have them.");
+        }
+
+        this.x = x;
+        this.z = z;
+        this.sections = sections;
+        this.biomeData = biomeData;
+        this.tileEntities = tileEntities != null ? tileEntities : new CompoundTag[0];
     }
 
-    public BlockStorage getBlocks() {
-        return this.blocks;
+    public int getX() {
+        return this.x;
     }
 
-    public NibbleArray3d getBlockLight() {
-        return this.blocklight;
+    public int getZ() {
+        return this.z;
     }
 
-    public NibbleArray3d getSkyLight() {
+    public Section[] getChunks() {
+        return this.sections;
+    }
+
+    public boolean hasBiomeData() {
+        return this.biomeData != null;
+    }
+
+    public byte[] getBiomeData() {
+        return this.biomeData;
+    }
+
+    public CompoundTag[] getTileEntities() {
+        return this.tileEntities;
+    }
+
+    public boolean hasSkylight() {
         return this.skylight;
-    }
-
-    public boolean isEmpty() {
-        return this.blocks.isEmpty();
     }
 
     @Override
@@ -41,14 +84,16 @@ public class Chunk {
         if(!(o instanceof Chunk)) return false;
 
         Chunk that = (Chunk) o;
-        return Objects.equals(this.blocks, that.blocks) &&
-                Objects.equals(this.blocklight, that.blocklight) &&
-                Objects.equals(this.skylight, that.skylight);
+        return this.x == that.x &&
+                this.z == that.z &&
+               Arrays.equals(this.sections, that.sections) &&
+               Arrays.equals(this.biomeData, that.biomeData) &&
+               Arrays.equals(this.tileEntities, that.tileEntities);
     }
 
     @Override
     public int hashCode() {
-        return ObjectUtil.hashCode(this.blocks, this.blocklight, this.skylight);
+        return ObjectUtil.hashCode(this.x, this.z, this.sections, this.biomeData, this.tileEntities);
     }
 
     @Override
