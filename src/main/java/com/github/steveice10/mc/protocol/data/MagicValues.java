@@ -243,6 +243,7 @@ public class MagicValues {
         register(WorldType.CUSTOMIZED, "customized");
         register(WorldType.DEBUG, "debug_all_block_states");
         register(WorldType.DEFAULT_1_1, "default_1_1");
+        register(WorldType.CUSTOMCUBIC, "customcubic");
 
         register(Animation.SWING_ARM, 0);
         register(Animation.DAMAGE, 1);
